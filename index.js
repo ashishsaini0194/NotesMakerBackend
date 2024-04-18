@@ -25,9 +25,8 @@ db.on('error', (err) => {
 // Define item schema and model
 const itemSchema = new mongoose.Schema({
     email: { type: String, required: true },
-    textData: { type: String, required: true },
-    createdAt: { type: new Date(), required: true }
-});
+    textData: { type: String, required: true }
+}, { timestamps: true });
 
 const Item = mongoose.model('Item', itemSchema);
 
