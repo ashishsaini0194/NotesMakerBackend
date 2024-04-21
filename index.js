@@ -1,8 +1,12 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const cors = require('cors');
 const mongoose = require('mongoose');
 
+
+
 const app = express();
+app.use(cors())
 const PORT = 3000;
 
 // Connect to MongoDB using Mongoose
@@ -24,8 +28,8 @@ db.on('error', (err) => {
 
 // Define item schema and model
 const itemSchema = new mongoose.Schema({
-    email: { type: String, required: true },
-    textData: { type: String, required: true }
+    email: { type: 'string', required: true },
+    textData: { type: 'string', required: true }
 }, { timestamps: true });
 
 const Item = mongoose.model('Item', itemSchema);
@@ -37,28 +41,31 @@ app.use(bodyParser.json());
 app.get('/allNotes', async (req, res) => {
     try {
         const email = req.query.email;
-        if (!email) res.status(401).json({ message: 'Please include email Id' })
+        if (!email) return res.status(401).json({ message: 'Please include email Id' })
+        // console.log({ email })
         const items = await Item.find({ email });
-        res.status(200).json(items);
+        return res.status(200).json({ items });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        return res.status(500).json({ error: error.message });
     }
 });
 
 // POST a new item
 app.post('/note', async (req, res) => {
     try {
-
-        if (!req.body.email) res.status(401).json({ message: 'Please include email Id' })
-        if (!req.body.textData) res.status(400).json({ message: 'Text can not be empty' })
+        // console.log(req.body.email, req.body.textData)
+        if (!req.body.email) return res.status(401).json({ message: 'Please include email Id' })
+        if (!req.body.textData) return res.status(400).json({ message: 'Text can not be empty' })
         const newItem = new Item({
             email: req.body.email,
             textData: req.body.textData,
         });
+        // console.log({ newItem })
         const savedItem = await newItem.save();
-        res.status(201).json(savedItem);
+        return res.status(201).json({ savedItem });
     } catch (error) {
-        res.status(400).json({ error: error.message });
+        // console.log(error)
+        return res.status(400).json({ error: error.message });
     }
 });
 
@@ -67,12 +74,12 @@ app.get('/items/:id', async (req, res) => {
     try {
         const item = await Item.findById(req.params.id);
         if (!item) {
-            res.status(404).send('Item not found');
+            return res.status(404).send('Item not found');
         } else {
-            res.json(item);
+            res.json({ item });
         }
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        return res.status(500).json({ error: error.message });
     }
 });
 
@@ -80,8 +87,8 @@ app.get('/items/:id', async (req, res) => {
 app.put('/notes/:id', async (req, res) => {
     try {
 
-        if (!req.body.email) res.status(401).json({ message: 'Please include email Id' })
-        if (!req.body.textData) res.status(400).json({ message: 'Text can not be empty' })
+        if (!req.body.email) return res.status(401).json({ message: 'Please include email Id' })
+        if (!req.body.textData) return res.status(400).json({ message: 'Text can not be empty' })
         const item = await Item.findByIdAndUpdate(
             req.params.id,
             {
@@ -91,12 +98,12 @@ app.put('/notes/:id', async (req, res) => {
             { new: true }
         );
         if (!item) {
-            res.status(404).send('Item not found');
+            return res.status(404).send('Item not found');
         } else {
-            res.status(204).json({ message: "successfully Deleted !" });
+            return res.status(204).json({ message: "successfully Deleted !" });
         }
     } catch (error) {
-        res.status(400).json({ error: error.message });
+        return res.status(400).json({ error: error.message });
     }
 });
 
@@ -105,12 +112,12 @@ app.delete('/items/:id', async (req, res) => {
     try {
         const deletedItem = await Item.findByIdAndDelete(req.params.id);
         if (!deletedItem) {
-            res.status(404).send('Item not found');
+            return res.status(404).send('Item not found');
         } else {
-            res.status(204).json({ message: "successfully Deleted !" });
+            return res.status(204).json({ message: "successfully Deleted !" });
         }
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        return res.status(500).json({ error: error.message });
     }
 });
 
