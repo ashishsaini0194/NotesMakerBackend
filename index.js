@@ -10,7 +10,7 @@ app.use(cors())
 const PORT = 3000;
 
 // Connect to MongoDB using Mongoose
-mongoose.connect('mongodb+srv://smartsainiashish1:smartsainiashish1@cluster1.pl7rn3r.mongodb.net/?retryWrites=true&w=majority&appName=Cluster1', {
+mongoose.connect('mongodb+srv://smartsainiashish1:smartsainiashish1@cluster1.pl7rn3r.mongodb.net/NotesMaker', {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 });
@@ -32,7 +32,7 @@ const itemSchema = new mongoose.Schema({
     textData: { type: 'string', required: true }
 }, { timestamps: true });
 
-const Item = mongoose.model('Item', itemSchema);
+const Item = mongoose.model('Notes', itemSchema);
 
 // Middleware
 app.use(bodyParser.json());
