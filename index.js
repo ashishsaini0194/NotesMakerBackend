@@ -43,7 +43,7 @@ app.get('/allNotes', async (req, res) => {
         const email = req.query.email;
         if (!email) return res.status(401).json({ message: 'Please include email Id' })
         // console.log({ email })
-        const items = await Item.find({ email });
+        const items = await Item.find({ email }, { 'key': "$_id", _id: 0, email: 1, textData: 1, createdAt: 1, updatedAt: 1 });
         return res.status(200).json({ items });
     } catch (error) {
         return res.status(500).json({ error: error.message });
@@ -76,7 +76,7 @@ app.get('/items/:id', async (req, res) => {
         if (!item) {
             return res.status(404).send('Item not found');
         } else {
-            res.json({ item });
+            return res.json({ item });
         }
     } catch (error) {
         return res.status(500).json({ error: error.message });
@@ -86,31 +86,33 @@ app.get('/items/:id', async (req, res) => {
 // PUT (Update) item by ID
 app.put('/notes/:id', async (req, res) => {
     try {
-
-        if (!req.body.email) return res.status(401).json({ message: 'Please include email Id' })
+        // console.log(req.params.id, req.body.textData)
+        if (!req.params.id) return res.status(401).json({ message: 'Please include note Id' })
         if (!req.body.textData) return res.status(400).json({ message: 'Text can not be empty' })
         const item = await Item.findByIdAndUpdate(
             req.params.id,
             {
-                email: req.body.email,
                 textData: req.body.textData,
             },
             { new: true }
         );
+        // console.log({ item })
         if (!item) {
             return res.status(404).send('Item not found');
-        } else {
-            return res.status(204).json({ message: "successfully Deleted !" });
         }
+        return res.status(204).json({ message: "successfully Updated !" });
+
     } catch (error) {
         return res.status(400).json({ error: error.message });
     }
 });
 
 // DELETE item by ID
-app.delete('/items/:id', async (req, res) => {
+app.delete('/notes/:id', async (req, res) => {
     try {
+        console.log(req.params.id)
         const deletedItem = await Item.findByIdAndDelete(req.params.id);
+        console.log({ deletedItem })
         if (!deletedItem) {
             return res.status(404).send('Item not found');
         } else {
